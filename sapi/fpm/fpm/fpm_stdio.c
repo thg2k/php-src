@@ -120,10 +120,12 @@ static void fpm_stdio_child_said(struct fpm_event_s *ev, short which, void *arg)
 	int in_buf = 0;
 	int res;
 
+zlog(ZLOG_DEBUG, "SOME CHILD HAD SOMETHING TO SAY");
+
 	if (!arg) {
 		return;
 	}
-	child = (struct fpm_child_s *)arg;
+	child = (struct fpm_child_s *) arg;
 	is_stdout = (fd == child->fd_stdout);
 	if (is_stdout) {
 		event = &child->ev_stdout;
@@ -222,7 +224,8 @@ int fpm_stdio_prepare_pipes(struct fpm_child_s *child) /* {{{ */
 		return -1;
 	}
 
-	if (0 > fd_set_blocked(fd_stdout[0], 0) || 0 > fd_set_blocked(fd_stderr[0], 0)) {
+	if (0 > fd_set_blocked(fd_stdout[0], 0) ||
+      0 > fd_set_blocked(fd_stderr[0], 0)) {
 		zlog(ZLOG_SYSERROR, "failed to unblock pipes");
 		close(fd_stdout[0]);
 		close(fd_stdout[1]);
@@ -240,6 +243,7 @@ int fpm_stdio_parent_use_pipes(struct fpm_child_s *child) /* {{{ */
 		return 0;
 	}
 
+  /* 0 -> to the parent, 1 -> to the child (so we close it) */
 	close(fd_stdout[1]);
 	close(fd_stderr[1]);
 
@@ -275,8 +279,10 @@ void fpm_stdio_child_use_pipes(struct fpm_child_s *child) /* {{{ */
 	if (child->wp->config->catch_workers_output) {
 		dup2(fd_stdout[1], STDOUT_FILENO);
 		dup2(fd_stderr[1], STDERR_FILENO);
-		close(fd_stdout[0]); close(fd_stdout[1]);
-		close(fd_stderr[0]); close(fd_stderr[1]);
+		close(fd_stdout[0]);
+    close(fd_stdout[1]);
+		close(fd_stderr[0]);
+    close(fd_stderr[1]);
 	} else {
 		/* stdout of parent is always /dev/null */
 		dup2(STDOUT_FILENO, STDERR_FILENO);

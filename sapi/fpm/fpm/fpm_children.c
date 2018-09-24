@@ -97,7 +97,7 @@ static void fpm_child_link(struct fpm_child_s *child) /* {{{ */
 	if (child->next) {
 		child->next->prev = child;
 	}
-	child->prev = 0;
+	child->prev = 0; // FIXME: this should not be necessary!
 	wp->children = child;
 }
 /* }}} */
@@ -311,7 +311,8 @@ static struct fpm_child_s *fpm_resources_prepare(struct fpm_worker_pool_s *wp) /
 	}
 
 	c->wp = wp;
-	c->fd_stdout = -1; c->fd_stderr = -1;
+	c->fd_stdout = -1;
+  c->fd_stderr = -1;
 
 	if (0 > fpm_stdio_prepare_pipes(c)) {
 		fpm_child_free(c);
@@ -389,7 +390,9 @@ int fpm_children_make(struct fpm_worker_pool_s *wp, int in_event_loop, int nb_to
 	 *   - (fpm_global_config.process_max < 1 || fpm_globals.running_children < fpm_global_config.process_max):
 	 *     if fpm_global_config.process_max is set, FPM has not fork this number of processes (globaly)
 	 */
-	while (fpm_pctl_can_spawn_children() && wp->running_children < max && (fpm_global_config.process_max < 1 || fpm_globals.running_children < fpm_global_config.process_max)) {
+	while (fpm_pctl_can_spawn_children() &&
+         wp->running_children < max &&
+         (fpm_global_config.process_max < 1 || fpm_globals.running_children < fpm_global_config.process_max)) {
 
 		warned = 0;
 		child = fpm_resources_prepare(wp);
@@ -398,7 +401,9 @@ int fpm_children_make(struct fpm_worker_pool_s *wp, int in_event_loop, int nb_to
 			return 2;
 		}
 
+
 		pid = fork();
+    zlog(ZLOG_DEBUG, "SPAWING DA DAMN CHILD: %d", (int) pid);
 
 		switch (pid) {
 
@@ -406,6 +411,7 @@ int fpm_children_make(struct fpm_worker_pool_s *wp, int in_event_loop, int nb_to
 				fpm_child_resources_use(child);
 				fpm_globals.is_child = 1;
 				fpm_child_init(wp);
+zlog(ZLOG_DEBUG, "SAYING HI FROM THE CHILD!", wp->config->name, (int) pid);
 				return 0;
 
 			case -1 :
@@ -419,7 +425,7 @@ int fpm_children_make(struct fpm_worker_pool_s *wp, int in_event_loop, int nb_to
 				fpm_clock_get(&child->started);
 				fpm_parent_resources_use(child);
 
-				zlog(is_debug ? ZLOG_DEBUG : ZLOG_NOTICE, "[pool %s] child %d started", wp->config->name, (int) pid);
+				zlog(is_debug ? ZLOG_DEBUG : ZLOG_NOTICE, "[pool %s] child %d xxxxxxxxxx started", wp->config->name, (int) pid);
 		}
 
 	}

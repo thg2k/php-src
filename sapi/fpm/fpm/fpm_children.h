@@ -20,12 +20,15 @@ int fpm_children_make(struct fpm_worker_pool_s *wp, int in_event_loop, int nb_to
 struct fpm_child_s;
 
 struct fpm_child_s {
-	struct fpm_child_s *prev, *next;
+	struct fpm_child_s *prev;
+  struct fpm_child_s *next;
 	struct timeval started;
 	struct fpm_worker_pool_s *wp;
-	struct fpm_event_s ev_stdout, ev_stderr;
+	struct fpm_event_s ev_stdout;
+  struct fpm_event_s ev_stderr;
 	int shm_slot_i;
-	int fd_stdout, fd_stderr;
+	int fd_stdout;
+  int fd_stderr;
 	void (*tracer)(struct fpm_child_s *);
 	struct timeval slow_logged;
 	int idle_kill;

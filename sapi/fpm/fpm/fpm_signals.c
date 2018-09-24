@@ -144,11 +144,18 @@ static void sig_soft_quit(int signo) /* {{{ */
 	int saved_errno = errno;
 
 	/* closing fastcgi listening socket will force fcgi_accept() exit immediately */
+  zlog(ZLOG_DEBUG, "XXXXXXXXXXX CHILD GOT SOFT QUITTTTTTTTTT");
 	close(0);
 	if (0 > socket(AF_UNIX, SOCK_STREAM, 0)) {
 		zlog(ZLOG_WARNING, "failed to create a new socket");
 	}
+
+  zlog(ZLOG_DEBUG, "CHILD SOFT QUIT 1 - calling fpm_php_soft_quit()");
+
 	fpm_php_soft_quit();
+
+  zlog(ZLOG_DEBUG, "CHILD SOFT QUIT 2 - returning");
+
 	errno = saved_errno;
 }
 /* }}} */
@@ -194,7 +201,7 @@ int fpm_signals_init_main() /* {{{ */
 	}
 
 	if (0 > fcntl(sp[0], F_SETFD, FD_CLOEXEC) || 0 > fcntl(sp[1], F_SETFD, FD_CLOEXEC)) {
-		zlog(ZLOG_SYSERROR, "falied to init signals: fcntl(F_SETFD, FD_CLOEXEC)");
+		zlog(ZLOG_SYSERROR, "failed to init signals: fcntl(F_SETFD, FD_CLOEXEC)");
 		return -1;
 	}
 
@@ -224,7 +231,7 @@ int fpm_signals_init_child() /* {{{ */
 	memset(&act_dfl, 0, sizeof(act_dfl));
 
 	act.sa_handler = &sig_soft_quit;
-	act.sa_flags |= SA_RESTART;
+	// act.sa_flags |= SA_RESTART;
 
 	act_dfl.sa_handler = SIG_DFL;
 

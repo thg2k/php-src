@@ -1891,8 +1891,10 @@ consult the installation file that came with this distribution, or visit \n\
 	request = fpm_init_request(fcgi_fd);
 
 	zend_first_try {
+    zlog(ZLOG_DEBUG, "CRITICAL STEP 1");
 		while (EXPECTED(fcgi_accept_request(request) >= 0)) {
 			char *primary_script = NULL;
+      zlog(ZLOG_DEBUG, "CRITICAL STEP 1a");
 			request_body_fd = -1;
 			SG(server_context) = (void *) request;
 			init_request_info();
@@ -1901,12 +1903,15 @@ consult the installation file that came with this distribution, or visit \n\
 
 			/* request startup only after we've done all we can to
 			 *            get path_translated */
+      zlog(ZLOG_DEBUG, "{{PHP}} php_request_startup()");
 			if (UNEXPECTED(php_request_startup() == FAILURE)) {
+        zlog(ZLOG_DEBUG, "{{PHP}} php_request_startup() FAILED");
 				fcgi_finish_request(request, 1);
 				SG(server_context) = NULL;
 				php_module_shutdown();
 				return FPM_EXIT_SOFTWARE;
 			}
+      zlog(ZLOG_DEBUG, "{{PHP}} php_request_startup() END");
 
 			/* check if request_method has been sent.
 			 * if not, it's certainly not an HTTP over fcgi request */
@@ -1942,6 +1947,7 @@ consult the installation file that came with this distribution, or visit \n\
 			primary_script = estrdup(SG(request_info).path_translated);
 
 			/* path_translated exists, we can continue ! */
+      zlog(ZLOG_DEBUG, "{{PHP}} php_fopen_primary_script()");
 			if (UNEXPECTED(php_fopen_primary_script(&file_handle) == FAILURE)) {
 				zend_try {
 					zlog(ZLOG_ERROR, "Unable to open primary script: %s (%s)", primary_script, strerror(errno));
@@ -1963,6 +1969,7 @@ consult the installation file that came with this distribution, or visit \n\
 
 			fpm_request_executing();
 
+      zlog(ZLOG_DEBUG, "{{PHP}} php_execute_script()");
 			php_execute_script(&file_handle);
 
 fastcgi_request_done:
@@ -1991,6 +1998,7 @@ fastcgi_request_done:
 			efree(SG(request_info).path_translated);
 			SG(request_info).path_translated = NULL;
 
+      zlog(ZLOG_DEBUG, "{{PHP}} php_request_shutdown()");
 			php_request_shutdown((void *) 0);
 
 			requests++;
@@ -2001,6 +2009,8 @@ fastcgi_request_done:
 			}
 			/* end of fastcgi loop */
 		}
+    zlog(ZLOG_DEBUG, "CRITICAL STEP 2");
+
 		fcgi_destroy_request(request);
 		fcgi_shutdown();
 
@@ -2013,6 +2023,8 @@ fastcgi_request_done:
 	} zend_catch {
 		exit_status = FPM_EXIT_SOFTWARE;
 	} zend_end_try();
+
+  zlog(ZLOG_DEBUG, "CRITICAL STEP 3");
 
 out:
 

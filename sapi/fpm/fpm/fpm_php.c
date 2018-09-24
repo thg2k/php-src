@@ -204,7 +204,9 @@ static void fpm_php_cleanup(int which, void *arg) /* {{{ */
 
 void fpm_php_soft_quit() /* {{{ */
 {
+  zlog(ZLOG_DEBUG, "CHILD SOFT QUIT 1a - calling fcgi_terminate()");
 	fcgi_terminate();
+  zlog(ZLOG_DEBUG, "CHILD SOFT QUIT 1b - returning from fcgi_terminate()");
 }
 /* }}} */
 
