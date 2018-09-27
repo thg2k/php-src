@@ -124,19 +124,19 @@ int fpm_pctl_kill(pid_t pid, int how) /* {{{ */
 	int s = 0;
 
 	switch (how) {
-		case FPM_PCTL_TERM :
+		case FPM_PCTL_TERM:
 			s = SIGTERM;
 			break;
-		case FPM_PCTL_STOP :
+		case FPM_PCTL_STOP:
 			s = SIGSTOP;
 			break;
-		case FPM_PCTL_CONT :
+		case FPM_PCTL_CONT:
 			s = SIGCONT;
 			break;
-		case FPM_PCTL_QUIT :
+		case FPM_PCTL_QUIT:
 			s = SIGQUIT;
 			break;
-		default :
+		default:
 			break;
 	}
 	return kill(pid, s);
@@ -231,10 +231,10 @@ void fpm_pctl(int new_state, int action) /* {{{ */
 			zlog(ZLOG_DEBUG, "switching to '%s' state", fpm_state_names[fpm_state]);
 			/* fall down */
 
-		case FPM_PCTL_ACTION_TIMEOUT :
+		case FPM_PCTL_ACTION_TIMEOUT:
 			fpm_pctl_action_next();
 			break;
-		case FPM_PCTL_ACTION_LAST_CHILD_EXITED :
+		case FPM_PCTL_ACTION_LAST_CHILD_EXITED:
 			fpm_pctl_action_last();
 			break;
 
@@ -498,7 +498,6 @@ void fpm_pctl_on_socket_accept(struct fpm_event_s *ev, short which, void *arg) /
 	struct fpm_worker_pool_s *wp = (struct fpm_worker_pool_s *)arg;
 	struct fpm_child_s *child;
 
-
 	if (fpm_globals.parent_pid != getpid()) {
 		/* prevent a event race condition when child process
 		 * have not set up its own event loop */
@@ -536,4 +535,3 @@ void fpm_pctl_on_socket_accept(struct fpm_event_s *ev, short which, void *arg) /
 	zlog(ZLOG_DEBUG, "[pool %s] got accept without idle child available .... I forked", wp->config->name);
 }
 /* }}} */
-

@@ -213,7 +213,7 @@ static void php_disable_functions(void)
 			case ',':
 				if (s) {
 					*e = '\0';
-					zend_disable_function(s, e-s);
+					zend_disable_function(s, e - s);
 					s = NULL;
 				}
 				break;
@@ -226,7 +226,7 @@ static void php_disable_functions(void)
 		e++;
 	}
 	if (s) {
-		zend_disable_function(s, e-s);
+		zend_disable_function(s, e - s);
 	}
 }
 /* }}} */

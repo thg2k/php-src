@@ -28,18 +28,17 @@ int fpm_scoreboard_init_main() /* {{{ */
 	unsigned int i;
 
 #ifdef HAVE_TIMES
-#if (defined(HAVE_SYSCONF) && defined(_SC_CLK_TCK))
+# if (defined(HAVE_SYSCONF) && defined(_SC_CLK_TCK))
 	fpm_scoreboard_tick = sysconf(_SC_CLK_TCK);
-#else /* _SC_CLK_TCK */
-#ifdef HZ
+# else
+#  ifdef HZ
 	fpm_scoreboard_tick = HZ;
-#else /* HZ */
+#  else
 	fpm_scoreboard_tick = 100;
-#endif /* HZ */
-#endif /* _SC_CLK_TCK */
+#  endif
+# endif
 	zlog(ZLOG_DEBUG, "got clock tick '%.0f'", fpm_scoreboard_tick);
-#endif /* HAVE_TIMES */
-
+#endif
 
 	for (wp = fpm_worker_all_pools; wp; wp = wp->next) {
 		size_t scoreboard_size, scoreboard_nprocs_size;
@@ -58,10 +57,10 @@ int fpm_scoreboard_init_main() /* {{{ */
 		scoreboard_size        = sizeof(struct fpm_scoreboard_s) + (wp->config->pm_max_children) * sizeof(struct fpm_scoreboard_proc_s *);
 		scoreboard_nprocs_size = sizeof(struct fpm_scoreboard_proc_s) * wp->config->pm_max_children;
 		shm_mem                = fpm_shm_alloc(scoreboard_size + scoreboard_nprocs_size);
-
 		if (!shm_mem) {
 			return -1;
 		}
+
 		wp->scoreboard         = shm_mem;
 		wp->scoreboard->nprocs = wp->config->pm_max_children;
 		shm_mem               += scoreboard_size;
@@ -78,7 +77,9 @@ int fpm_scoreboard_init_main() /* {{{ */
 }
 /* }}} */
 
-void fpm_scoreboard_update(int idle, int active, int lq, int lq_len, int requests, int max_children_reached, int slow_rq, int action, struct fpm_scoreboard_s *scoreboard) /* {{{ */
+void fpm_scoreboard_update(int idle, int active, int lq, int lq_len,
+                           int requests, int max_children_reached,
+                           int slow_rq, int action, struct fpm_scoreboard_s *scoreboard) /* {{{ */
 {
 	if (!scoreboard) {
 		scoreboard = fpm_scoreboard;
@@ -87,7 +88,6 @@ void fpm_scoreboard_update(int idle, int active, int lq, int lq_len, int request
 		zlog(ZLOG_WARNING, "Unable to update scoreboard: the SHM has not been found");
 		return;
 	}
-
 
 	fpm_spinlock(&scoreboard->lock, 0);
 	if (action == FPM_SCOREBOARD_ACTION_SET) {

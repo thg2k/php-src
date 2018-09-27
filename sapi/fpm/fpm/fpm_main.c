@@ -1597,14 +1597,14 @@ int main(int argc, char *argv[])
 	int php_allow_to_run_as_root = 0;
 
 #ifdef HAVE_SIGNAL_H
-#if defined(SIGPIPE) && defined(SIG_IGN)
+# if defined(SIGPIPE) && defined(SIG_IGN)
 	signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE in standalone mode so
 								that sockets created via fsockopen()
 								don't kill PHP if the remote site
 								closes it.  in apache|apxs mode apache
 								does that for us!  thies@thieso.net
 								20000419 */
-#endif
+# endif
 #endif
 
 #ifdef ZTS
@@ -1692,7 +1692,7 @@ int main(int argc, char *argv[])
 				use_extended_info = 1;
 				break;
 
-			case 't':
+			case 't': /* use double to also dump the conf */
 				test_conf++;
 				break;
 
@@ -1755,9 +1755,11 @@ int main(int argc, char *argv[])
 				SG(request_info).no_headers = 1;
 
 #if ZEND_DEBUG
-				php_printf("PHP %s (%s) (built: %s %s) (DEBUG)\nCopyright (c) 1997-2018 The PHP Group\n%s", PHP_VERSION, sapi_module.name, __DATE__,        __TIME__, get_zend_version());
+				php_printf("PHP %s (%s) (built: %s %s) (DEBUG)\nCopyright (c) 1997-2018 The PHP Group\n%s",
+				           PHP_VERSION, sapi_module.name, __DATE__, __TIME__, get_zend_version());
 #else
-				php_printf("PHP %s (%s) (built: %s %s)\nCopyright (c) 1997-2018 The PHP Group\n%s", PHP_VERSION, sapi_module.name, __DATE__, __TIME__,      get_zend_version());
+				php_printf("PHP %s (%s) (built: %s %s)\nCopyright (c) 1997-2018 The PHP Group\n%s",
+				           PHP_VERSION, sapi_module.name, __DATE__, __TIME__, get_zend_version());
 #endif
 				php_request_shutdown((void *) 0);
 				fcgi_shutdown();

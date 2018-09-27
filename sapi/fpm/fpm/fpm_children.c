@@ -463,7 +463,6 @@ int fpm_children_init_main() /* {{{ */
 		fpm_global_config.emergency_restart_interval) {
 
 		last_faults = malloc(sizeof(time_t) * fpm_global_config.emergency_restart_threshold);
-
 		if (!last_faults) {
 			return -1;
 		}
@@ -478,4 +477,3 @@ int fpm_children_init_main() /* {{{ */
 	return 0;
 }
 /* }}} */
-

@@ -158,12 +158,12 @@ typedef struct _fcgi_begin_request_rec {
 } fcgi_begin_request_rec;
 
 typedef struct _fcgi_end_request {
-    unsigned char appStatusB3;
-    unsigned char appStatusB2;
-    unsigned char appStatusB1;
-    unsigned char appStatusB0;
-    unsigned char protocolStatus;
-    unsigned char reserved[3];
+	unsigned char appStatusB3;
+	unsigned char appStatusB2;
+	unsigned char appStatusB1;
+	unsigned char appStatusB0;
+	unsigned char protocolStatus;
+	unsigned char reserved[3];
 } fcgi_end_request;
 
 typedef struct _fcgi_end_request_rec {
@@ -201,7 +201,7 @@ typedef struct _fcgi_hash {
 	fcgi_data_seg     *data;
 } fcgi_hash;
 
-typedef struct _fcgi_req_hook 	fcgi_req_hook;
+typedef struct _fcgi_req_hook fcgi_req_hook;
 
 struct _fcgi_req_hook {
 	void(*on_accept)();
@@ -376,10 +376,10 @@ static void fcgi_hash_del(fcgi_hash *h, unsigned int hash_value, char *var, unsi
 		    (*p)->var_len == var_len &&
 		    memcmp((*p)->var, var, var_len) == 0) {
 
-		    (*p)->val = NULL; /* NULL value means deleted */
-		    (*p)->val_len = 0;
+			(*p)->val = NULL; /* NULL value means deleted */
+			(*p)->val_len = 0;
 			*p = (*p)->next;
-		    return;
+			return;
 		}
 		p = &(*p)->next;
 	}
@@ -394,8 +394,8 @@ static char *fcgi_hash_get(fcgi_hash *h, unsigned int hash_value, char *var, uns
 		if (p->hash_value == hash_value &&
 		    p->var_len == var_len &&
 		    memcmp(p->var, var, var_len) == 0) {
-		    *val_len = p->val_len;
-		    return p->val;
+			*val_len = p->val_len;
+			return p->val;
 		}
 		p = p->next;
 	}
@@ -668,10 +668,10 @@ int fcgi_listen(const char *path, int backlog)
 #endif
 
 	if ((s = strchr(path, ':'))) {
-		port = atoi(s+1);
-		if (port != 0 && (s-path) < MAXPATHLEN) {
-			strncpy(host, path, s-path);
-			host[s-path] = '\0';
+		port = atoi(s + 1);
+		if (port != 0 && (s - path) < MAXPATHLEN) {
+			strncpy(host, path, s - path);
+			host[s - path] = '\0';
 			tcp = 1;
 		}
 	} else if (is_port_number(path)) {
@@ -689,14 +689,14 @@ int fcgi_listen(const char *path, int backlog)
 		sa.sa_inet.sin_port = htons(port);
 		sock_len = sizeof(sa.sa_inet);
 
-		if (!*host || !strncmp(host, "*", sizeof("*")-1)) {
+		if (!*host || !strncmp(host, "*", sizeof("*") - 1)) {
 			sa.sa_inet.sin_addr.s_addr = htonl(INADDR_ANY);
 		} else {
 			sa.sa_inet.sin_addr.s_addr = inet_addr(host);
 			if (sa.sa_inet.sin_addr.s_addr == INADDR_NONE) {
 				struct hostent *hep;
 
-				if(strlen(host) > MAXFQDNLEN) {
+				if (strlen(host) > MAXFQDNLEN) {
 					hep = NULL;
 				} else {
 					hep = php_network_gethostbyname(host);
@@ -765,7 +765,7 @@ int fcgi_listen(const char *path, int backlog)
 	    bind(listen_socket, (struct sockaddr *) &sa, sock_len) < 0 ||
 	    listen(listen_socket, backlog) < 0) {
 		close(listen_socket);
-		fcgi_log(FCGI_ERROR, "Cannot bind/listen socket - [%d] %s.\n",errno, strerror(errno));
+		fcgi_log(FCGI_ERROR, "Cannot bind/listen socket - [%d] %s.\n", errno, strerror(errno));
 		return -1;
 	}
 
@@ -1049,7 +1049,7 @@ static int fcgi_read_request(fcgi_request *req)
 {
 	fcgi_header hdr;
 	int len, padding;
-	unsigned char buf[FCGI_MAX_LENGTH+8];
+	unsigned char buf[FCGI_MAX_LENGTH + 8];
 
 	req->keep = 0;
 	req->ended = 0;
@@ -1090,7 +1090,7 @@ static int fcgi_read_request(fcgi_request *req)
 	if (hdr.type == FCGI_BEGIN_REQUEST && len == sizeof(fcgi_begin_request)) {
 		fcgi_begin_request *b;
 
-		if (safe_read(req, buf, len+padding) != len+padding) {
+		if (safe_read(req, buf, len + padding) != len + padding) {
 			return 0;
 		}
 
@@ -1110,13 +1110,13 @@ static int fcgi_read_request(fcgi_request *req)
 #endif
 		switch ((b->roleB1 << 8) + b->roleB0) {
 			case FCGI_RESPONDER:
-				fcgi_hash_set(&req->env, FCGI_HASH_FUNC("FCGI_ROLE", sizeof("FCGI_ROLE")-1), "FCGI_ROLE", sizeof("FCGI_ROLE")-1, "RESPONDER", sizeof("RESPONDER")-1);
+				fcgi_hash_set(&req->env, FCGI_HASH_FUNC("FCGI_ROLE", sizeof("FCGI_ROLE") - 1), "FCGI_ROLE", sizeof("FCGI_ROLE") - 1, "RESPONDER", sizeof("RESPONDER") - 1);
 				break;
 			case FCGI_AUTHORIZER:
-				fcgi_hash_set(&req->env, FCGI_HASH_FUNC("FCGI_ROLE", sizeof("FCGI_ROLE")-1), "FCGI_ROLE", sizeof("FCGI_ROLE")-1, "AUTHORIZER", sizeof("AUTHORIZER")-1);
+				fcgi_hash_set(&req->env, FCGI_HASH_FUNC("FCGI_ROLE", sizeof("FCGI_ROLE") - 1), "FCGI_ROLE", sizeof("FCGI_ROLE") - 1, "AUTHORIZER", sizeof("AUTHORIZER") - 1);
 				break;
 			case FCGI_FILTER:
-				fcgi_hash_set(&req->env, FCGI_HASH_FUNC("FCGI_ROLE", sizeof("FCGI_ROLE")-1), "FCGI_ROLE", sizeof("FCGI_ROLE")-1, "FILTER", sizeof("FILTER")-1);
+				fcgi_hash_set(&req->env, FCGI_HASH_FUNC("FCGI_ROLE", sizeof("FCGI_ROLE") - 1), "FCGI_ROLE", sizeof("FCGI_ROLE") - 1, "FILTER", sizeof("FILTER") - 1);
 				break;
 			default:
 				return 0;
@@ -1135,12 +1135,12 @@ static int fcgi_read_request(fcgi_request *req)
 				return 0;
 			}
 
-			if (safe_read(req, buf, len+padding) != len+padding) {
+			if (safe_read(req, buf, len + padding) != len + padding) {
 				req->keep = 0;
 				return 0;
 			}
 
-			if (!fcgi_get_params(req, buf, buf+len)) {
+			if (!fcgi_get_params(req, buf, buf + len)) {
 				req->keep = 0;
 				return 0;
 			}
@@ -1159,12 +1159,12 @@ static int fcgi_read_request(fcgi_request *req)
 		unsigned int zlen;
 		fcgi_hash_bucket *q;
 
-		if (safe_read(req, buf, len+padding) != len+padding) {
+		if (safe_read(req, buf, len + padding) != len + padding) {
 			req->keep = 0;
 			return 0;
 		}
 
-		if (!fcgi_get_params(req, buf, buf+len)) {
+		if (!fcgi_get_params(req, buf, buf + len)) {
 			req->keep = 0;
 			return 0;
 		}
@@ -1203,7 +1203,7 @@ static int fcgi_read_request(fcgi_request *req)
 		}
 		len = (int)(p - buf - sizeof(fcgi_header));
 		len += fcgi_make_header((fcgi_header*)buf, FCGI_GET_VALUES_RESULT, 0, len);
-		if (safe_write(req, buf, sizeof(fcgi_header) + len) != (ssize_t)sizeof(fcgi_header)+len) {
+		if (safe_write(req, buf, sizeof(fcgi_header) + len) != (ssize_t)sizeof(fcgi_header) + len) {
 			req->keep = 0;
 			return 0;
 		}
