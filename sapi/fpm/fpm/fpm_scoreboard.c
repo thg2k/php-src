@@ -103,7 +103,7 @@ void fpm_scoreboard_update(int idle, int active, int lq, int lq_len,
 		if (lq_len >= 0) {
 			scoreboard->lq_len = lq_len;
 		}
-#ifdef HAVE_FPM_LQ /* prevent unnecessary test */
+#ifdef HAVE_FPM_LQ
 		if (scoreboard->lq > scoreboard->lq_max) {
 			scoreboard->lq_max = scoreboard->lq;
 		}
@@ -118,7 +118,7 @@ void fpm_scoreboard_update(int idle, int active, int lq, int lq_len,
 		if (slow_rq > 0) {
 			scoreboard->slow_rq = slow_rq;
 		}
-	} else {
+	} else if (action == FPM_SCOREBOARD_ACTION_INC) {
 		if (scoreboard->idle + idle > 0) {
 			scoreboard->idle += idle;
 		} else {

@@ -37,6 +37,7 @@ static int fault;
 static void fpm_children_cleanup(int which, void *arg) /* {{{ */
 {
 	free(last_faults);
+	last_faults = NULL;
 }
 /* }}} */
 
@@ -44,8 +45,7 @@ static struct fpm_child_s *fpm_child_alloc() /* {{{ */
 {
 	struct fpm_child_s *ret;
 
-	ret = malloc(sizeof(struct fpm_child_s));
-
+	ret = (struct fpm_child_s *)malloc(sizeof(struct fpm_child_s));
 	if (!ret) {
 		return 0;
 	}
@@ -68,6 +68,7 @@ static void fpm_child_close(struct fpm_child_s *child, int in_event_loop) /* {{{
 		if (in_event_loop) {
 			fpm_event_fire(&child->ev_stdout);
 		}
+		// FIXME: how can fd_stdout change between before and now??
 		if (child->fd_stdout != -1) {
 			close(child->fd_stdout);
 		}
@@ -77,6 +78,7 @@ static void fpm_child_close(struct fpm_child_s *child, int in_event_loop) /* {{{
 		if (in_event_loop) {
 			fpm_event_fire(&child->ev_stderr);
 		}
+		// FIXME: how can fd_stdout change between before and now??
 		if (child->fd_stderr != -1) {
 			close(child->fd_stderr);
 		}
@@ -104,13 +106,15 @@ static void fpm_child_link(struct fpm_child_s *child) /* {{{ */
 
 static void fpm_child_unlink(struct fpm_child_s *child) /* {{{ */
 {
-	--child->wp->running_children;
+	struct fpm_worker_pool_s *wp = child->wp;
+
+	--wp->running_children;
 	--fpm_globals.running_children;
 
 	if (child->prev) {
 		child->prev->next = child->next;
 	} else {
-		child->wp->children = child->next;
+		wp->children = child->next;
 	}
 
 	if (child->next) {
@@ -122,21 +126,18 @@ static void fpm_child_unlink(struct fpm_child_s *child) /* {{{ */
 static struct fpm_child_s *fpm_child_find(pid_t pid) /* {{{ */
 {
 	struct fpm_worker_pool_s *wp;
-	struct fpm_child_s *child = 0;
+	struct fpm_child_s *child = NULL;
 
 	for (wp = fpm_worker_all_pools; wp; wp = wp->next) {
-
 		for (child = wp->children; child; child = child->next) {
 			if (child->pid == pid) {
 				break;
 			}
 		}
 
-		if (child) break;
-	}
-
-	if (!child) {
-		return 0;
+		if (child) {
+			break;
+		}
 	}
 
 	return child;
@@ -145,7 +146,9 @@ static struct fpm_child_s *fpm_child_find(pid_t pid) /* {{{ */
 
 static void fpm_child_init(struct fpm_worker_pool_s *wp) /* {{{ */
 {
+	// FIXME: why? should be min(all pm_max_requests) ??
 	fpm_globals.max_requests = wp->config->pm_max_requests;
+	// FIXME: same story.. this is suspicious...
 	fpm_globals.listening_socket = dup(wp->listening_socket);
 
 	if (0 > fpm_stdio_init_child(wp)  ||

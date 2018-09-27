@@ -203,22 +203,24 @@ static void fpm_pctl_action_next() /* {{{ */
 void fpm_pctl(int new_state, int action) /* {{{ */
 {
 	switch (action) {
-		case FPM_PCTL_ACTION_SET :
+		case FPM_PCTL_ACTION_SET:
 			if (fpm_state == new_state) { /* already in progress - just ignore duplicate signal */
 				return;
 			}
 
 			switch (fpm_state) { /* check which states can be overridden */
-				case FPM_PCTL_STATE_NORMAL :
+				case FPM_PCTL_STATE_NORMAL:
 					/* 'normal' can be overridden by any other state */
 					break;
-				case FPM_PCTL_STATE_RELOADING :
+				case FPM_PCTL_STATE_RELOADING:
 					/* 'reloading' can be overridden by 'finishing' */
-					if (new_state == FPM_PCTL_STATE_FINISHING) break;
-				case FPM_PCTL_STATE_FINISHING :
+					if (new_state == FPM_PCTL_STATE_FINISHING)
+						break;
+				case FPM_PCTL_STATE_FINISHING:
 					/* 'reloading' and 'finishing' can be overridden by 'terminating' */
-					if (new_state == FPM_PCTL_STATE_TERMINATING) break;
-				case FPM_PCTL_STATE_TERMINATING :
+					if (new_state == FPM_PCTL_STATE_TERMINATING)
+						break;
+				case FPM_PCTL_STATE_TERMINATING:
 					/* nothing can override 'terminating' state */
 					zlog(ZLOG_DEBUG, "not switching to '%s' state, because already in '%s' state",
 						fpm_state_names[new_state], fpm_state_names[fpm_state]);
@@ -250,12 +252,17 @@ int fpm_pctl_can_spawn_children() /* {{{ */
 
 int fpm_pctl_child_exited() /* {{{ */
 {
+    /* during normal operation we don't care if a child exited, it can be
+     * respawned if needed and possible */
 	if (fpm_state == FPM_PCTL_STATE_NORMAL) {
 		return 0;
 	}
 
 	if (!fpm_globals.running_children) {
+		/* there are no more running children and we are (reloading??) */
 		fpm_pctl(FPM_PCTL_STATE_UNSPECIFIED, FPM_PCTL_ACTION_LAST_CHILD_EXITED);
+		// fpm_pctl_action_last();  FIXME: this is the same as calling _action_last
+
 	}
 	return 0;
 }
@@ -509,6 +516,7 @@ void fpm_pctl_on_socket_accept(struct fpm_event_s *ev, short which, void *arg) /
 /*	zlog(ZLOG_DEBUG, "[pool %s] heartbeat running_children=%d", wp->config->name, wp->running_children);*/
 
 	if (wp->running_children >= wp->config->pm_max_children) {
+		/* we warn about max children reach only once */
 		if (!wp->warn_max_children) {
 			fpm_scoreboard_update(0, 0, 0, 0, 0, 1, 0, FPM_SCOREBOARD_ACTION_INC, wp->scoreboard);
 			zlog(ZLOG_WARNING, "[pool %s] server reached max_children setting (%d), consider raising it", wp->config->name, wp->config->pm_max_children);
@@ -525,7 +533,11 @@ void fpm_pctl_on_socket_accept(struct fpm_event_s *ev, short which, void *arg) /
 		}
 	}
 
+    // FIXME: this makes the whole warn_max_children thing a bit useless.. it works only
+    // if there is max_children = 1 and we keep bouncing between zero and one,
+    // i would change this to a warning in case no more children can be spawned!
 	wp->warn_max_children = 0;
+
 	fpm_children_make(wp, 1, 1, 1);
 
 	if (fpm_globals.is_child) {

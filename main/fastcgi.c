@@ -387,7 +387,7 @@ static void fcgi_hash_del(fcgi_hash *h, unsigned int hash_value, char *var, unsi
 
 static char *fcgi_hash_get(fcgi_hash *h, unsigned int hash_value, char *var, unsigned int var_len, unsigned int *val_len)
 {
-	unsigned int      idx = hash_value & FCGI_HASH_TABLE_MASK;
+	unsigned int idx = hash_value & FCGI_HASH_TABLE_MASK;
 	fcgi_hash_bucket *p = h->hash_table[idx];
 
 	while (p != NULL) {
@@ -551,6 +551,7 @@ int fcgi_init(void)
 
 int fcgi_is_fastcgi(void)
 {
+	// FIXME: this looks really fishy... implicit init?
 	if (!is_initialized) {
 		return fcgi_init();
 	} else {
@@ -566,6 +567,7 @@ void fcgi_shutdown(void)
 	is_fastcgi = 0;
 	if (allowed_clients) {
 		free(allowed_clients);
+		allowed_clients = NULL;
 	}
 }
 
@@ -773,46 +775,7 @@ int fcgi_listen(const char *path, int backlog)
 		chmod(path, 0777);
 	} else {
 		char *ip = getenv("FCGI_WEB_SERVER_ADDRS");
-		char *cur, *end;
-		int n;
-
-		if (ip) {
-			ip = strdup(ip);
-			cur = ip;
-			n = 0;
-			while (*cur) {
-				if (*cur == ',') n++;
-				cur++;
-			}
-			allowed_clients = malloc(sizeof(sa_t) * (n+2));
-			n = 0;
-			cur = ip;
-			while (cur) {
-				end = strchr(cur, ',');
-				if (end) {
-					*end = 0;
-					end++;
-				}
-				if (inet_pton(AF_INET, cur, &allowed_clients[n].sa_inet.sin_addr)>0) {
-					allowed_clients[n].sa.sa_family = AF_INET;
-					n++;
-#ifdef HAVE_IPV6
-				} else if (inet_pton(AF_INET6, cur, &allowed_clients[n].sa_inet6.sin6_addr)>0) {
-					allowed_clients[n].sa.sa_family = AF_INET6;
-					n++;
-#endif
-				} else {
-					fcgi_log(FCGI_ERROR, "Wrong IP address '%s' in listen.allowed_clients", cur);
-				}
-				cur = end;
-			}
-			allowed_clients[n].sa.sa_family = 0;
-			free(ip);
-			if (!n) {
-				fcgi_log(FCGI_ERROR, "There are no allowed addresses");
-				/* don't clear allowed_clients as it will create an "open for all" security issue */
-			}
-		}
+		fcgi_set_allowed_clients(ip);
 	}
 
 	if (!is_initialized) {
@@ -837,39 +800,50 @@ void fcgi_set_allowed_clients(char *ip)
 
 	if (ip) {
 		ip = strdup(ip);
+
+		/* count the total tokens */
 		cur = ip;
 		n = 0;
 		while (*cur) {
-			if (*cur == ',') n++;
+			if (*cur == ',') {
+				n++;
+			}
 			cur++;
 		}
-		if (allowed_clients) free(allowed_clients);
-		allowed_clients = malloc(sizeof(sa_t) * (n+2));
-		n = 0;
+
+		/* allocate that many address structures plus one blank for termination */
+		if (allowed_clients) {
+			free(allowed_clients);
+		}
+		allowed_clients = malloc(sizeof(sa_t) * (n + 2));
+
+		/* now parse each structure and store it */
 		cur = ip;
+		n = 0;
 		while (cur) {
 			end = strchr(cur, ',');
 			if (end) {
 				*end = 0;
 				end++;
 			}
-			if (inet_pton(AF_INET, cur, &allowed_clients[n].sa_inet.sin_addr)>0) {
+
+			if (inet_pton(AF_INET, cur, &allowed_clients[n].sa_inet.sin_addr) > 0) {
 				allowed_clients[n].sa.sa_family = AF_INET;
 				n++;
 #ifdef HAVE_IPV6
-			} else if (inet_pton(AF_INET6, cur, &allowed_clients[n].sa_inet6.sin6_addr)>0) {
+			} else if (inet_pton(AF_INET6, cur, &allowed_clients[n].sa_inet6.sin6_addr) > 0) {
 				allowed_clients[n].sa.sa_family = AF_INET6;
 				n++;
 #endif
 			} else {
-				fcgi_log(FCGI_ERROR, "Wrong IP address '%s' in listen.allowed_clients", cur);
+				fcgi_log(FCGI_ERROR, "Bad IP address syntax '%s' in listen.allowed_clients", cur);
 			}
 			cur = end;
 		}
 		allowed_clients[n].sa.sa_family = 0;
 		free(ip);
 		if (!n) {
-			fcgi_log(FCGI_ERROR, "There are no allowed addresses");
+			fcgi_log(FCGI_ERROR, "There are no allowed addresses - No one will be able to use the service!");
 			/* don't clear allowed_clients as it will create an "open for all" security issue */
 		}
 	}
@@ -1020,25 +994,26 @@ static int fcgi_get_params(fcgi_request *req, unsigned char *p, unsigned char *e
 	while (p < end) {
 		name_len = *p++;
 		if (UNEXPECTED(name_len >= 128)) {
-			if (UNEXPECTED(p + 3 >= end)) return 0;
+			if (UNEXPECTED(p + 3 >= end))
+				return 0;
 			name_len = ((name_len & 0x7f) << 24);
 			name_len |= (*p++ << 16);
 			name_len |= (*p++ << 8);
 			name_len |= *p++;
 		}
-		if (UNEXPECTED(p >= end)) return 0;
+		if (UNEXPECTED(p >= end))
+			return 0;
 		val_len = *p++;
 		if (UNEXPECTED(val_len >= 128)) {
-			if (UNEXPECTED(p + 3 >= end)) return 0;
+			if (UNEXPECTED(p + 3 >= end))
+				return 0;
 			val_len = ((val_len & 0x7f) << 24);
 			val_len |= (*p++ << 16);
 			val_len |= (*p++ << 8);
 			val_len |= *p++;
 		}
-		if (UNEXPECTED(name_len + val_len > (unsigned int) (end - p))) {
-			/* Malformated request */
+		if (UNEXPECTED(name_len + val_len > (unsigned int) (end - p)))
 			return 0;
-		}
 		fcgi_hash_set(&req->env, FCGI_HASH_FUNC(p, name_len), (char*)p, name_len, (char*)p + name_len, val_len);
 		p += name_len + val_len;
 	}
