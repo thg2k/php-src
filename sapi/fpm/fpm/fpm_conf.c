@@ -173,38 +173,67 @@ static int fpm_conf_is_dir(char *path) /* {{{ */
 }
 /* }}} */
 
-/*
- * Expands the '$pool' token in a dynamically allocated string
- */
-static int fpm_conf_expand_pool_name(char **value) {
+struct fpm_conf_subst_s {
 	char *token;
+	char *value;
+};
+
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+static struct fpm_conf_subst_s fpm_conf_substitutions[] = {
+	{ "$php_major_version",    STR(PHP_MAJOR_VERSION) },
+	{ "$php_minor_version",    STR(PHP_MINOR_VERSION) },
+	{ "$php_release_version",  STR(PHP_RELEASE_VERSION) },
+	{ "$php_extra_version",    PHP_EXTRA_VERSION },
+	{ "$php_version",          PHP_VERSION },
+	{ "$pool",                 "undefined" },
+	{ NULL, NULL }
+};
+
+static void fpm_conf_expand_placeholders(char **value) {
+	int i;
 
 	if (!value || !*value) {
-		return 0;
+		return;
 	}
 
-	while (*value && (token = strstr(*value, "$pool"))) {
-		char *buf;
-		char *p2 = token + strlen("$pool");
 
-		/* If we are not in a pool, we cannot expand this name now */
-		if (!current_wp || !current_wp->config  || !current_wp->config->name) {
-			return -1;
+	/* avoid useless pattern matchings if there are no potentially valid tokens */
+	if (!strchr(*value, '$')) {
+		return;
+	}
+
+	for (i = 0; fpm_conf_substitutions[i].token; i++) {
+		const char *token = fpm_conf_substitutions[i].token;
+		const char *repl = fpm_conf_substitutions[i].value;
+		const char *r;
+		char *p, *buf;
+
+		/* Update the value of dynamic tokens */
+		if (!strcmp(token, "$pool")) {
+			if (current_wp && current_wp->config && current_wp->config->name) {
+				repl = current_wp->config->name;
+			}
 		}
 
-		/* "aaa$poolbbb" becomes "aaa\0oolbbb" */
-		token[0] = '\0';
+		while (*value && (p = strstr(*value, token))) {
 
-		/* Build a brand new string with the expanded token */
-		spprintf(&buf, 0, "%s%s%s", *value, current_wp->config->name, p2);
+			r = p + strlen(token);
 
-		/* Free the previous value and save the new one */
-		free(*value);
-		*value = strdup(buf);
-		efree(buf);
+			/* "aaa$tokenbbb" becomes "aaa\0tokenbbb" */
+			p[0] = '\0';
+
+			/* build a brand new string with the expanded token */
+			spprintf(&buf, 0, "%s%s%s", *value, repl, r);
+
+			/* free the previous value and save the new one */
+			free(*value);
+			*value = strdup(buf);
+			efree(buf);
+		}
 	}
 
-	return 0;
+	return;
 }
 
 static char *fpm_conf_set_boolean(zval *value, void **config, intptr_t offset) /* {{{ */
@@ -239,9 +268,7 @@ static char *fpm_conf_set_string(zval *value, void **config, intptr_t offset) /*
 	if (!*config_val) {
 		return "fpm_conf_set_string(): strdup() failed";
 	}
-	if (fpm_conf_expand_pool_name(config_val) == -1) {
-		return "Can't use '$pool' when the pool is not defined";
-	}
+	fpm_conf_expand_placeholders(config_val);
 
 	return NULL;
 }
@@ -574,11 +601,7 @@ static char *fpm_conf_set_array(zval *key, zval *value, void **config, int conve
 		kv->value = strdup(b ? "1" : "0");
 	} else {
 		kv->value = strdup(Z_STRVAL_P(value));
-		if (fpm_conf_expand_pool_name(&kv->value) == -1) {
-			free(kv->key);
-			free(kv);
-			return "Can't use '$pool' when the pool is not defined";
-		}
+		fpm_conf_expand_placeholders(&kv->value);
 	}
 
 	if (!kv->value) {
@@ -1386,6 +1409,7 @@ static void fpm_conf_ini_parser_entry(zval *name, zval *value, void *arg) /* {{{
 			return;
 		}
 		ini_include = strdup(Z_STRVAL_P(value));
+		fpm_conf_expand_placeholders(&ini_include);
 		return;
 	}
 
