@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;
 ; About php.ini   ;
 ;;;;;;;;;;;;;;;;;;;
+
 ; PHP's initialization file, generally called php.ini, is responsible for
 ; configuring many of the aspects of PHP's behavior.
 
@@ -69,6 +70,7 @@
 ;;;;;;;;;;;;;;;;;;;
 ; About this file ;
 ;;;;;;;;;;;;;;;;;;;
+
 ; PHP comes packaged with two INI files. One that is recommended to be used
 ; in production environments and one that is recommended to be used in
 ; development environments.
@@ -88,6 +90,7 @@
 ;;;;;;;;;;;;;;;;;;;
 ; Quick Reference ;
 ;;;;;;;;;;;;;;;;;;;
+
 ; The following are all the settings which are different in either the production
 ; or development versions of the INIs with respect to PHP's default behavior.
 ; Please see the actual settings later in the document for more details as to why
@@ -156,6 +159,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 ; php.ini Options  ;
 ;;;;;;;;;;;;;;;;;;;;
+
 ; Name for user-defined php.ini (.htaccess) files. Default is ".user.ini"
 ;user_ini.filename = ".user.ini"
 
@@ -1678,7 +1682,7 @@ zend.assertions = -1
 ; http://php.net/mbstring.func-overload
 ;mbstring.func_overload = 0
 
-; enable strict encoding detection.
+; Enable strict encoding detection.
 ; Default: Off
 ;mbstring.strict_detection = On
 
