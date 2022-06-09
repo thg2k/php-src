@@ -6,8 +6,8 @@ PHP                                                                        NEWS
   . Fixed bug #81719: mysqlnd/pdo password buffer overflow. (CVE-2022-31626)
     (c dot fol at ambionics dot io)
 
-- pgsql
-  . Fixed bug #81720: Uninitialized array in pg_query_params(). 
+- pgsql:
+  . Fixed bug #81720: Uninitialized array in pg_query_params().
     (CVE-2022-31625) (cmb)
 
 14 Apr 2022, PHP 7.4.29
@@ -28,7 +28,7 @@ PHP                                                                        NEWS
 16 Dec 2021, PHP 7.4.27
 
 - Core:
-  . Fixed bug #81626 (Error on use static:: in __сallStatic() wrapped to
+  . Fixed bug #81626 (Error on use static:: in __callStatic() wrapped to
     Closure::fromCallable()). (Nikita)
 
 - FPM:
@@ -125,7 +125,7 @@ PHP                                                                        NEWS
     (cmb)
   . Fixed bug #73122 (Integer Overflow when concatenating strings). (cmb)
 
--GD:
+- GD:
   . Fixed bug #53580 (During resize gdImageCopyResampled cause colors change).
     (cmb)
 
@@ -281,7 +281,7 @@ PHP                                                                        NEWS
   . Fixed bug #80460 (ODBC doesn't account for SQL_NO_TOTAL indicator). (cmb)
 
 - PDO_MySQL:
-  . Fixed bug #81037 (PDO discards error message text from prepared 
+  . Fixed bug #81037 (PDO discards error message text from prepared
     statement). (Kamil Tekiela)
 
 - PDO_ODBC:
@@ -390,7 +390,7 @@ PHP                                                                        NEWS
   . Fixed bug #80915 (Taking a reference to $_SERVER hides its values from
     phpinfo()). (Rowan Tommins)
 
-04 Mar 2021, php 7.4.16
+04 Mar 2021, PHP 7.4.16
 
 - Core:
   . Fixed #80706 (mail(): Headers after Bcc headers may be ignored). (cmb)
@@ -1746,7 +1746,7 @@ PHP                                                                        NEWS
     (bugreportuser)
   . Fixed bug #78620 (Out of memory error). (cmb, Nikita)
 
-- Exif :
+- Exif:
   . Fixed bug #78442 ('Illegal component' on exif_read_data since PHP7)
 	(Kalle)
 
@@ -2062,7 +2062,7 @@ PHP                                                                        NEWS
   . Fixed bug #77794 (Incorrect Date header format in built-in server).
     (kelunik)
 
-- EXIF
+- EXIF:
   . Fixed bug #77950 (Heap-buffer-overflow in _estrndup via exif_process_IFD_TAG).
     (CVE-2019-11036) (Stas)
 
@@ -2077,7 +2077,7 @@ PHP                                                                        NEWS
 - LDAP:
   . Fixed bug #77869 (Core dump when using server controls) (mcmic)
 
-- Mail
+- Mail:
   . Fixed bug #77821 (Potential heap corruption in TSendMail()). (cmb)
 
 - mbstring:
@@ -2219,7 +2219,7 @@ PHP                                                                        NEWS
   . Fixed bug #77514 (mb_ereg_replace() with trailing backslash adds null byte).
     (Nikita)
 
-- MySQL
+- MySQL:
   . Disabled LOCAL INFILE by default, can be enabled using php.ini directive
     mysqli.allow_local_infile for mysqli, or PDO::MYSQL_ATTR_LOCAL_INFILE
     attribute for pdo_mysql. (Darek Slusarczyk)
@@ -2302,7 +2302,7 @@ PHP                                                                        NEWS
 - MySQLnd:
   . Fixed bug #77308 (Unbuffered queries memory leak). (Dmitry)
   . Fixed bug #75684 (In mysqlnd_ext_plugin.h the plugin methods family has
-      no external visibility). (Anatol)
+    no external visibility). (Anatol)
 
 - Opcache:
   . Fixed bug #77266 (Assertion failed in dce_live_ranges). (Laruence)
@@ -2691,7 +2691,7 @@ PHP                                                                        NEWS
   . Fixed bug #74631 (PDO_PCO with PHP-FPM: OCI environment initialized
     before PHP-FPM sets it up). (Ingmar Runge)
 
-- PDO SQLite
+- PDO SQLite:
   . Add support for additional open flags
 
 - pgsql:
