@@ -55,7 +55,7 @@ PHP                                                                        NEWS
 07 Jan 2021, PHP 7.3.26
 
 - Standard:
-  . Fixed bug #77423 (FILTER_VALIDATE_URL accepts URLs with invalid userinfo). 
+  . Fixed bug #77423 (FILTER_VALIDATE_URL accepts URLs with invalid userinfo).
     (CVE-2020-7071) (cmb)
   . Fixed bug #80457 (stream_get_contents() fails with maxlength=-1 or default).
     (bruno dot premont at restena dot lu)
@@ -150,7 +150,7 @@ PHP                                                                        NEWS
   . Fixed bug #80048 (Bug #69100 has not been fixed for Windows). (cmb)
   . Fixed bug #80049 (Memleak when coercing integers to string via variadic
     argument). (Nikita)
-  . Fixed bug #79699 (PHP parses encoded cookie names so malicious `__Host-` 
+  . Fixed bug #79699 (PHP parses encoded cookie names so malicious `__Host-`
     cookies can be sent). (CVE-2020-7070) (Stas)
 
 - Calendar:
@@ -168,7 +168,7 @@ PHP                                                                        NEWS
     handlers changed). (SammyK)
 
 - OpenSSL:
-  . Fixed bug #79601 (Wrong ciphertext/tag in AES-CCM encryption for a 12 
+  . Fixed bug #79601 (Wrong ciphertext/tag in AES-CCM encryption for a 12
     bytes IV). (CVE-2020-7069) (Jakub Zelenka)
 
 - PDO:
@@ -237,7 +237,7 @@ PHP                                                                        NEWS
     to return usec). (Herbert256)
 
 - Core:
-  . Fixed bug #79877 (getimagesize function silently truncates after a null 
+  . Fixed bug #79877 (getimagesize function silently truncates after a null
     byte) (cmb)
   . Fixed bug #79778 (Assertion failure if dumping closure with unresolved
     static variable). (Nikita)
@@ -281,7 +281,7 @@ PHP                                                                        NEWS
   . Fixed possibly unsupported timercmp() usage. (cmb)
 
 - Exif:
-  . Fixed bug #79687 (Sony picture - PHP Warning - Make, Model, MakerNotes). 
+  . Fixed bug #79687 (Sony picture - PHP Warning - Make, Model, MakerNotes).
     (cmb)
 
 - Filter:
@@ -330,9 +330,9 @@ PHP                                                                        NEWS
 14 May 2020, PHP 7.3.18
 
 - Core:
-  . Fixed bug #78875 (Long filenames cause OOM and temp files are not cleaned). 
+  . Fixed bug #78875 (Long filenames cause OOM and temp files are not cleaned).
     (CVE-2019-11048) (cmb)
-  . Fixed bug #78876 (Long variables in multipart/form-data cause OOM and temp 
+  . Fixed bug #78876 (Long variables in multipart/form-data cause OOM and temp
     files are not cleaned). (CVE-2019-11048) (cmb)
   . Fixed bug #79434 (PHP 7.3 and PHP-7.4 crash with NULL-pointer dereference
     on !CS constant). (Nikita)
@@ -444,7 +444,7 @@ PHP                                                                        NEWS
     (Nikita)
 
 - MBstring:
-  . Fixed bug #79371 (mb_strtolower (UTF-32LE): stack-buffer-overflow at 
+  . Fixed bug #79371 (mb_strtolower (UTF-32LE): stack-buffer-overflow at
     php_unicode_tolower_full). (CVE-2020-7065) (cmb)
 
 - MySQLi:
@@ -465,7 +465,7 @@ PHP                                                                        NEWS
   . Fixed bug #79294 (::columnType() may fail after SQLite3Stmt::reset()). (cmb)
 
 - Standard:
-  . Fixed bug #79329 (get_headers() silently truncates after a null byte). 
+  . Fixed bug #79329 (get_headers() silently truncates after a null byte).
     (CVE-2020-7066) (cmb)
   . Fixed bug #79254 (getenv() w/o arguments not showing changes). (cmb)
   . Fixed bug #79265 (Improper injection of Host header when using fopen for
@@ -532,7 +532,7 @@ PHP                                                                        NEWS
 
 23 Jan 2020, PHP 7.3.14
 
-- Core
+- Core:
   . Fixed bug #78999 (Cycle leak when using function result as temporary).
     (Dmitry)
 
@@ -561,7 +561,7 @@ PHP                                                                        NEWS
   . Fixed bug #79029 (Use After Free's in XMLReader / XMLWriter). (Laruence)
 
 - Mbstring:
-  . Fixed bug #79037 (global buffer-overflow in `mbfl_filt_conv_big5_wchar`). 
+  . Fixed bug #79037 (global buffer-overflow in `mbfl_filt_conv_big5_wchar`).
     (CVE-2020-7060) (Nikita)
 
 - OPcache:
@@ -661,7 +661,7 @@ PHP                                                                        NEWS
     cmb).
 
 - OpCache:
-  . Fixed bug #78654 (Incorrectly computed opcache checksum on files with 
+  . Fixed bug #78654 (Incorrectly computed opcache checksum on files with
     non-ascii characters). (mhagstrand)
   . Fixed bug #78747 (OpCache corrupts custom extension result). (Nikita)
 
@@ -670,7 +670,7 @@ PHP                                                                        NEWS
     connections). (Nikita)
 
 - Reflection:
-  . Fixed bug #78697 (ReflectionClass::ImplementsInterface - inaccurate error 
+  . Fixed bug #78697 (ReflectionClass::ImplementsInterface - inaccurate error
     message with traits). (villfa)
 
 - Sockets:
@@ -683,7 +683,7 @@ PHP                                                                        NEWS
     (bugreportuser)
   . Fixed bug #78620 (Out of memory error). (cmb, Nikita)
 
-- Exif :
+- Exif:
   . Fixed bug #78442 ('Illegal component' on exif_read_data since PHP7)
 	(Kalle)
 
@@ -701,7 +701,7 @@ PHP                                                                        NEWS
     objects). (cmb)
 
 - MySQLi:
-  . Fixed bug #76809 (SSL settings aren't respected when persistent connections 
+  . Fixed bug #76809 (SSL settings aren't respected when persistent connections
     are used). (fabiomsouto)
 
 - Mysqlnd:
@@ -717,7 +717,7 @@ PHP                                                                        NEWS
     result set"). (cmb)
 
 - Session:
-  . Fixed bug #78624 (session_gc return value for user defined session 
+  . Fixed bug #78624 (session_gc return value for user defined session
     handlers). (bshaffer)
 
 - Standard:
@@ -725,7 +725,7 @@ PHP                                                                        NEWS
     (Thomas Calvet)
   . Fixed bug #78612 (strtr leaks memory when integer keys are used and the
     subject string shorter). (Nikita)
-  . Fixed bug #76859 (stream_get_line skips data if used with data-generating 
+  . Fixed bug #76859 (stream_get_line skips data if used with data-generating
     filter). (kkopachev)
 
 - Zip:
@@ -999,7 +999,7 @@ PHP                                                                        NEWS
   . Fixed bug #77794 (Incorrect Date header format in built-in server).
     (kelunik)
 
-- EXIF
+- EXIF:
   . Fixed bug #77950 (Heap-buffer-overflow in _estrndup via exif_process_IFD_TAG).
     (CVE-2019-11036) (Stas)
 
@@ -1014,7 +1014,7 @@ PHP                                                                        NEWS
 - LDAP:
   . Fixed bug #77869 (Core dump when using server controls) (mcmic)
 
-- Mail
+- Mail:
   . Fixed bug #77821 (Potential heap corruption in TSendMail()). (cmb)
 
 - mbstring:
@@ -1156,7 +1156,7 @@ PHP                                                                        NEWS
   . Fixed bug #77514 (mb_ereg_replace() with trailing backslash adds null byte).
     (Nikita)
 
-- MySQL
+- MySQL:
   . Disabled LOCAL INFILE by default, can be enabled using php.ini directive
     mysqli.allow_local_infile for mysqli, or PDO::MYSQL_ATTR_LOCAL_INFILE
     attribute for pdo_mysql. (Darek Slusarczyk)
@@ -1239,7 +1239,7 @@ PHP                                                                        NEWS
 - MySQLnd:
   . Fixed bug #77308 (Unbuffered queries memory leak). (Dmitry)
   . Fixed bug #75684 (In mysqlnd_ext_plugin.h the plugin methods family has
-      no external visibility). (Anatol)
+    no external visibility). (Anatol)
 
 - Opcache:
   . Fixed bug #77266 (Assertion failed in dce_live_ranges). (Laruence)
@@ -1628,7 +1628,7 @@ PHP                                                                        NEWS
   . Fixed bug #74631 (PDO_PCO with PHP-FPM: OCI environment initialized
     before PHP-FPM sets it up). (Ingmar Runge)
 
-- PDO SQLite
+- PDO SQLite:
   . Add support for additional open flags
 
 - pgsql:
@@ -2130,7 +2130,7 @@ PHP                                                                        NEWS
 - FTP:
   . Fixed ftp_pasv arginfo. (carusogabriel)
 
--GD:
+- GD:
   . Fixed bug #73957 (signed integer conversion in imagescale()). (cmb)
   . Fixed bug #76041 (null pointer access crashed php). (cmb)
   . Fixed imagesetinterpolation arginfo. (Gabriel Caruso)
@@ -2589,10 +2589,10 @@ PHP                                                                        NEWS
   . Fixed Bug #74537 (Align --with-pdo-oci configure option with --with-oci8 syntax).
     (Tianfang Yang)
 
-- PDO_Sqlite
+- PDO_Sqlite:
   . Switch to sqlite3_prepare_v2() and sqlite3_close_v2() functions (rasmus)
 
-- PHPDBG
+- PHPDBG:
   . Added extended_value to opcode dump output. (Sara)
 
 - Session:
